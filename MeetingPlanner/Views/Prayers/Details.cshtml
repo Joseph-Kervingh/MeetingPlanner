@@ -1,0 +1,36 @@
+﻿@model MeetingPlanner.Models.Prayer
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Prayer</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.OpeningP)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.OpeningP)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SacramentP)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SacramentP)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ClosingP)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ClosingP)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.PrayerID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

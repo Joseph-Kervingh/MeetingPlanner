@@ -1,0 +1,53 @@
+﻿@model IEnumerable<MeetingPlanner.Models.Hymn>
+
+@{
+    ViewData["Title"] = "Hymns";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Add to Agenda</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.HymnID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Opening)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Interlude)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Closing)
+            </th>
+               <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.HymnID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Opening)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Interlude)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Closing)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.HymnID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.HymnID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.HymnID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,195 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using MeetingPlanner.Data;
+using MeetingPlanner.Models;
+
+namespace MeetingPlanner.Controllers
+{
+    public class MeetingsController : Controller
+    {
+        private readonly PlannerContext _context;
+
+        public MeetingsController(PlannerContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Meetings
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var meetings = from s in _context.Meetings
+                           select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                meetings = meetings.Where(s => s.Conductor.Contains(searchString));
+            }
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    meetings = meetings.OrderByDescending(s => s.Conductor);
+                    break;
+                case "Date":
+                    meetings = meetings.OrderBy(s => s.MeetingDate);
+                    break;
+                case "date_desc":
+                    meetings = meetings.OrderByDescending(s => s.MeetingDate);
+                    break;
+                default:
+                    meetings = meetings.OrderBy(s => s.Conductor);
+                    break;
+            }
+            int pageSize = 3;
+            return View(await PaginatedList<Meeting>.CreateAsync(meetings.AsNoTracking(), pageNumber ?? 1, pageSize));
+        
+
+            //return View(await meetings.AsNoTracking().ToListAsync());
+        }
+
+        // GET: Meetings/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var meeting = await _context.Meetings
+                .FirstOrDefaultAsync(m => m.ID == id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            return View(meeting);
+        }
+
+        // GET: Meetings/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Meetings/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("ID,MeetingDate,Conductor")] Meeting meeting)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(meeting);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(meeting);
+        }
+
+        // GET: Meetings/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var meeting = await _context.Meetings.FindAsync(id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+            return View(meeting);
+        }
+
+        // POST: Meetings/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("ID,MeetingDate,Conductor")] Meeting meeting)
+        {
+            if (id != meeting.ID)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(meeting);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MeetingExists(meeting.ID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(meeting);
+        }
+
+        // GET: Meetings/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var meeting = await _context.Meetings
+                .FirstOrDefaultAsync(m => m.ID == id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            return View(meeting);
+        }
+
+        // POST: Meetings/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var meeting = await _context.Meetings.FindAsync(id);
+            _context.Meetings.Remove(meeting);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool MeetingExists(int id)
+        {
+            return _context.Meetings.Any(e => e.ID == id);
+        }
+    }
+}
